@@ -12,6 +12,8 @@ import Cookies from "js-cookie";
 
 // Importing Swal (SweetAlert2) for displaying toast notifications
 import Swal from "sweetalert2";
+import { useNavigation } from "react-router-dom";
+
 
 // Configuring global toast notifications using Swal.mixin
 const Toast = Swal.mixin({
@@ -65,7 +67,7 @@ export const register = async (full_name, email, password, password2) => {
         });
 
         // Logging in the newly registered user and displaying success toast
-        await login(email, password);
+        // await login(email, password);
 
         // Displaying a success toast notification
         Toast.fire({
@@ -96,6 +98,7 @@ export const logout = () => {
         icon: "success",
         title: "You have been logged out.",
     });
+    
 };
 
 // Function to set the authenticated user on page load

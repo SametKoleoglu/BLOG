@@ -1,10 +1,18 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import logo from '../../assets/pp.gif'
+import { Link, useNavigation } from "react-router-dom";
+import logo from "../../assets/pp.gif";
+import { useAuthStore } from "../../store/auth";
+import { logout } from "../../utils/auth";
 
 function Header() {
+  const [isLoggedIn, user] = useAuthStore((state) => [
+    state.isLoggedIn,
+    state.user,
+  ]);
+
+
   return (
-    <header className="navbar-dark bg-dark navbar-sticky header-static">
+    <header className="navbar-dark bg-success navbar-sticky header-static">
       <nav className="navbar navbar-expand-lg">
         <div className="container">
           <Link className="navbar-brand" to="/">
@@ -82,65 +90,82 @@ function Header() {
                   </li>
                 </ul>
               </li>
-              <li className="nav-item dropdown">
-                <a
-                  className="nav-link dropdown-toggle active"
-                  href="#"
-                  id="pagesMenu"
-                  data-bs-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                >
-                  Dashboard
-                </a>
-                <ul className="dropdown-menu" aria-labelledby="pagesMenu">
-                  <li>
-                    <Link className="dropdown-item" to="/dashboard/">
-                      <i className="fas fa-user"></i> Dashboard
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/posts/">
-                      <i className="bi bi-grid-fill"></i> Posts
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/add-post/">
-                      <i className="fas fa-plus-circle"></i> Add Post
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/comments/">
-                      <i className="bi bi-chat-left-quote-fill"></i> Comments
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/notifications/">
-                      <i className="fas fa-bell"></i> Notifications
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" to="/profile/">
-                      <i className="fas fa-user-gear"></i> Profile
-                    </Link>
-                  </li>
-                </ul>
-              </li>
+
               <li className="nav-item">
-                <Link
-                  to={"/register/"}
-                  className="btn btn-success"
-                  href="dashboard.html"
-                >
-                  Register <i className="fas fa-user-plus"></i>
-                </Link>
-                <Link
-                  to={"/login/"}
-                  className="btn btn-success ms-2"
-                  href="dashboard.html"
-                >
-                  Login <i className="fas fa-sign-in-alt"></i>
-                </Link>
+                {isLoggedIn() ? (
+                  <div className="d-flex">
+                    <li className="nav-item dropdown">
+                      <a
+                        className="nav-link dropdown-toggle active"
+                        href="#"
+                        id="pagesMenu"
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                      >
+                        ME
+                      </a>
+                      <ul className="dropdown-menu" aria-labelledby="pagesMenu">
+                        <li>
+                          <Link className="dropdown-item" to="/dashboard/">
+                            <i className="fas fa-user"></i> Dashboard
+                          </Link>
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/posts/">
+                            <i className="bi bi-grid-fill"></i> Posts
+                          </Link>
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/add-post/">
+                            <i className="fas fa-plus-circle"></i> Add Post
+                          </Link>
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/comments/">
+                            <i className="bi bi-chat-left-quote-fill"></i>{" "}
+                            Comments
+                          </Link>
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/notifications/">
+                            <i className="fas fa-bell"></i> Notifications
+                          </Link>
+                        </li>
+                        <li>
+                          <Link className="dropdown-item" to="/profile/">
+                            <i className="fas fa-user-gear"></i> Profile
+                          </Link>
+                        </li>
+                      </ul>
+                    </li>
+                    <button
+                      onClick={() => {
+                        logout();
+                      }}
+                      className="btn btn-success bg-dark position-absolute end-0 me-5"
+                    >
+                      Logout <i className="fas fa-sign-in-alt"></i>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Link
+                      to={"/register/"}
+                      className="btn btn-success"
+                      href="dashboard.html"
+                    >
+                      Register <i className="fas fa-user-plus"></i>
+                    </Link>
+                    <Link
+                      to={"/login/"}
+                      className="btn btn-success ms-2"
+                      href="dashboard.html"
+                    >
+                      Login <i className="fas fa-sign-in-alt"></i>
+                    </Link>
+                  </>
+                )}
               </li>
             </ul>
           </div>

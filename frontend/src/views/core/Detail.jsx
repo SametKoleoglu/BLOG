@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import Header from "../partials/Header";
 import Footer from "../partials/Footer";
 import { Link, useParams } from "react-router-dom";
 import apiInstance from "../../utils/axios";
 import Moment from "../../plugin/Moment";
 import Toast from "../../plugin/Toast";
-
-
+import useUserData from "../../plugin/useUserData";
 
 function Detail() {
-
   const param = useParams();
+  const userId = useUserData()?.user_id;
 
   // STATES
   const [post, setPost] = useState([]);
@@ -20,7 +19,6 @@ function Detail() {
     email: "",
     comment: "",
   });
-
 
   const fetchPost = async () => {
     const response = await apiInstance.get(`/post/detail/${param.slug}/`);
@@ -34,22 +32,21 @@ function Detail() {
     setCreateComment({
       ...createComment,
       [e.target.name]: e.target.value,
-      
-    })
+    });
     console.log(createComment);
-  }
+  };
 
   const handleCommentSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const json = {
-      post_id : post?.id,
+      post_id: post?.id,
       name: createComment.full_name,
       email: createComment.email,
-      comment: createComment.comment
-    }
+      comment: createComment.comment,
+    };
 
-    const response = await apiInstance.post('post/comment-post/', json)
+    const response = await apiInstance.post("post/comment-post/", json);
     console.log(response);
     Toast("success", "Commented Successfully");
     fetchPost();
@@ -58,37 +55,49 @@ function Detail() {
       full_name: "",
       email: "",
       comment: "",
-    })
-      
-  }
+    });
+  };
 
   const handleLikePost = async () => {
     const json = {
-      user_id : 4,
-      post_id : post?.id
-    }
+      user_id: userId,
+      post_id: post?.id,
+    };
 
-    const response = await apiInstance.post('post/like-post/', json)
+    console.log(json);
+
+    const response = await apiInstance.post("post/like-post/", json);
     console.log(response.data);
     Toast("success", response.data.message);
     fetchPost();
-  }
+  };
 
-  useEffect(() => {
+  const handleBookmarkPost = async () => {
+    const json = {
+      user_id: userId,
+      post_id: post?.id,
+    };
+
+    const response = await apiInstance.post("post/bookmark-post/", json);
+    console.log(response.data);
+    Toast("success", response.data.message);
+    fetchPost();
+  };
+
+  useLayoutEffect(() => {
     fetchPost();
   }, []);
 
   return (
     <>
       <Header />
-      <section className=" mt-5">
+      <section className="my-4">
         <div className="container">
           <div className="row">
             <div className="col-12">
-              <a href="#" className="badge bg-danger mb-2 text-decoration-none">
-                <i className="small fw-bold " />
-                Lifestyle
-              </a>
+              <Link to={"/category/"} className="badge bg-danger mb-2 text-decoration-none">
+                <i className="large fw-bold text-light">{post?.category?.title}</i>                
+              </Link>
               <h1 className="text-center">{post.title}</h1>
             </div>
           </div>
@@ -167,32 +176,28 @@ function Detail() {
                   {post?.likes?.length}
                 </button>
 
-                <button className="btn btn-primary ms-2">
+                <button onClick={handleBookmarkPost} className="btn btn-primary ms-2">
                   <i className="fas fa-bookmark"></i>
                 </button>
-
               </div>
             </div>
             {/* Left sidebar END */}
             {/* Main Content START */}
             <div className="col-lg-10 mb-5">
-              <p>
-                {
-                    post?.description
-                }
-              </p>
+              <p>{post?.description}</p>
 
-                <hr />
-
-              
+              <hr />
 
               <div className="mt-5">
-                <h3>{post?.comments?.length == 1 ? "1 comment" : `${post?.comments?.length} comments`}</h3>
-              
-              {
-                post?.comments?.map((comment, index) => (  
-                <div className="my-4 d-flex bg-light p-3 mb-3 rounded">
-                  {/* <img
+                <h3>
+                  {post?.comments?.length == 1
+                    ? "1 comment"
+                    : `${post?.comments?.length} comments`}
+                </h3>
+
+                {post?.comments?.map((comment, index) => (
+                  <div className="my-4 d-flex bg-light p-3 mb-3 rounded">
+                    {/* <img
                     className="avatar avatar-md rounded-circle float-start me-3"
                     src="https://img.freepik.com/free-photo/front-portrait-woman-with-beauty-face_186202-6146.jpg?size=626&ext=jpg&ga=GA1.1.735520172.1710979200&semt=ais"
                     style={{
@@ -203,20 +208,17 @@ function Detail() {
                     }}
                     alt="avatar"
                   /> */}
-                  <div>
-                    <div className="mb-2">
-                      <h5 className="m-0">{comment?.name}</h5>
-                      <span className="me-3 small">{Moment(comment?.date)}.</span>
+                    <div>
+                      <div className="mb-2">
+                        <h5 className="m-0">{comment?.name}</h5>
+                        <span className="me-3 small">
+                          {Moment(comment?.date)}.
+                        </span>
+                      </div>
+                      <p className="fw-bold">{comment?.comment}. </p>
                     </div>
-                    <p className="fw-bold">
-                      {comment?.comment}.{" "}
-                    </p>
                   </div>
-                </div>
-                ))
-              }
-
-              
+                ))}
               </div>
               {/* Comments END */}
               {/* Reply START */}
@@ -240,11 +242,25 @@ function Detail() {
                   </div>
                   <div className="col-md-6">
                     <label className="form-label">Email *</label>
-                    <input type="email" className="form-control" value={createComment.email} aria-label="Email" name="email" onChange={handleCreateComment} />
+                    <input
+                      type="email"
+                      className="form-control"
+                      value={createComment.email}
+                      aria-label="Email"
+                      name="email"
+                      onChange={handleCreateComment}
+                    />
                   </div>
                   <div className="col-12">
                     <label className="form-label">Write Comment *</label>
-                    <textarea className="form-control" rows={4} aria-label="Write Comment" value={createComment.comment} name="comment" onChange={handleCreateComment} />
+                    <textarea
+                      className="form-control"
+                      rows={4}
+                      aria-label="Write Comment"
+                      value={createComment.comment}
+                      name="comment"
+                      onChange={handleCreateComment}
+                    />
                   </div>
                   <div className="col-12">
                     <button type="submit" className="btn btn-primary">

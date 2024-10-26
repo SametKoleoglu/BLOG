@@ -43,14 +43,19 @@ class RegisterView(generics.CreateAPIView):
 
 
 class ProfileView(generics.RetrieveUpdateAPIView):
-    permission_classes = [AllowAny,]
+    permission_classes = [
+        AllowAny,
+    ]
     serializer_class = api_serializer.ProfileSerializer
 
     def get_object(self):
-        user_id = self.kwargs["user_id"]
-        user = api_models.User.objects.get(id=user_id)
-        profile = api_models.Profile.objects.get(user=user)
-        return profile
+        try:
+            user_id = self.kwargs["user_id"]
+            user = api_models.User.objects.get(id=user_id)
+            profile = api_models.Profile.objects.get(user=user)
+            return profile
+        except api_models.User.DoesNotExist:
+            return None
 
 
 class CategoryListAPIView(generics.ListAPIView):
@@ -77,6 +82,13 @@ class PostListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         return api_models.Post.objects.filter(status="Active")
+    
+class TrendPostListAPIView(generics.ListAPIView):
+    serializer_class = api_serializer.PostSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return api_models.Post.objects.filter(status="Active").order_by("-view")
 
 
 class PostDetailAPIView(generics.RetrieveAPIView):
@@ -85,10 +97,26 @@ class PostDetailAPIView(generics.RetrieveAPIView):
 
     def get_object(self):
         slug = self.kwargs["slug"]
-        post = api_models.Post.objects.get(slug=slug, status="Active")
+        post = api_models.Post.objects.get(slug=slug)
         post.view += 1
         post.save()
         return post
+
+
+class CategoryCreateAPIView(generics.CreateAPIView):
+    serializer_class = api_serializer.CategoryCreateSerializer
+    permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        title = request.data.get("title")
+        image = request.data.get("image")
+
+        if image == "undefined":
+            image = None
+
+        api_models.Category.objects.create(title=title, image=image)
+
+        return Response({"message": "category created"}, status=status.HTTP_201_CREATED)
 
 
 class PostLikeAPIView(APIView):
@@ -241,7 +269,7 @@ class DashboardNotificationsList(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs["user_id"]
         user = api_models.User.objects.get(id=user_id)
-        return api_models.Notification.objects.all(seen=False, user=user)
+        return api_models.Notification.objects.filter(seen=False, user=user)
 
 
 class DashboardMarkNotificationAsSeen(APIView):
@@ -282,7 +310,7 @@ class DashboardPostCreateAPIView(generics.CreateAPIView):
         image = request.data.get("image")
         tags = request.data.get("tags")
         category_id = request.data.get("category")
-        post_status = request.data.get("post_status")
+        post_status = request.data.get("status")
 
         user = api_models.User.objects.get(id=user_id)
         category = api_models.Category.objects.get(id=category_id)
@@ -326,7 +354,7 @@ class DashboardPostEditAPIView(generics.RetrieveUpdateDestroyAPIView):
         post_instance.title = title
         if image != "undefined":
             post_instance.image = image
-        
+
         post_instance.description = description
         post_instance.tags = tags
         post_instance.category = category

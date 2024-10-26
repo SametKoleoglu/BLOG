@@ -1,51 +1,134 @@
-import { useState } from "react";
 import { Route, Routes, BrowserRouter } from "react-router-dom";
+
+// LOCALE IMPORTS
+import { Detail, Category, Search } from "./views/core/CoreIndex";
 import Index from "./views/core/Index";
-import Detail from "./views/core/Detail";
-import Search from "./views/core/Search";
-import Category from "./views/core/Category";
-import About from "./views/pages/About";
-import Contact from "./views/pages/Contact";
-import Register from "./views/auth/Register";
-import Login from "./views/auth/Login";
-import Logout from "./views/auth/Logout";
-import ForgotPassword from "./views/auth/ForgotPassword";
-import CreatePassword from "./views/auth/CreatePassword";
-import Dashboard from "./views/dashboard/Dashboard";
-import Posts from "./views/dashboard/Posts";
-import AddPost from "./views/dashboard/AddPost";
-import EditPost from "./views/dashboard/EditPost";
-import Comments from "./views/dashboard/Comments";
-import Notifications from "./views/dashboard/Notifications";
-import Profile from "./views/dashboard/Profile";
-import MainWrapper from '../src/layouts/MainWrapper'
+import { About, Contact } from "./views/pages/index";
+import {
+  CreatePassword,
+  ForgotPassword,
+  Login,
+  Logout,
+  Register,
+} from "./views/auth/index";
+import {
+  Dashboard,
+  Posts,
+  AddPost,
+  EditPost,
+  Comments,
+  Notifications,
+  Profile,
+} from "./views/dashboard/index";
+import MainWrapper from "../src/layouts/MainWrapper";
+
+import PrivateRoute from "./layouts/PrivateRoute";
+import PublicRoute from "./layouts/PublicRoute";
+import { useAuthStore } from "./store/auth";
 
 const App = () => {
+  const loggedIn = useAuthStore((state) => state.isLoggedIn);
   return (
     <>
       <BrowserRouter>
         <MainWrapper>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/:slug/" element={<Detail />} />
+            <Route path="/:slug/" element={<PrivateRoute><Detail/></PrivateRoute> } />
             <Route path="/category/" element={<Category />} />
             <Route path="/search/" element={<Search />} />
 
             {/* Authentication */}
-            <Route path="/register/" element={<Register />} />
-            <Route path="/login/" element={<Login />} />
-            <Route path="/logout/" element={<Logout />} />
-            <Route path="/forgot-password/" element={<ForgotPassword />} />
-            <Route path="/create-password/" element={<CreatePassword />} />
+            <Route
+              path="/register/"
+              element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/login/"
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/forgot-password/"
+              element={
+                <PrivateRoute>
+                  <ForgotPassword />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/create-password/"
+              element={
+                <PrivateRoute>
+                  <CreatePassword />
+                </PrivateRoute>
+              }
+            />
 
             {/* Dashboard */}
-            <Route path="/dashboard/" element={<Dashboard />} />
-            <Route path="/posts/" element={<Posts />} />
-            <Route path="/add-post/" element={<AddPost />} />
-            <Route path="/edit-post/" element={<EditPost />} />
-            <Route path="/comments/" element={<Comments />} />
-            <Route path="/notifications/" element={<Notifications />} />
-            <Route path="/profile/" element={<Profile />} />
+            <Route
+              path="/dashboard/"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/posts/"
+              element={
+                <PrivateRoute>
+                  <Posts />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/add-post/"
+              element={
+                <PrivateRoute>
+                  <AddPost />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/edit-post/:id/"
+              element={
+                <PrivateRoute>
+                  <EditPost />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/comments/"
+              element={
+                <PrivateRoute>
+                  <Comments />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/notifications/"
+              element={
+                <PrivateRoute>
+                  <Notifications />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile/"
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              }
+            />
 
             {/* Pages */}
             <Route path="/about/" element={<About />} />

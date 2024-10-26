@@ -10,14 +10,17 @@ urlpatterns = [
 
     # Post Endpoint
     path('post/category/list/', api_views.CategoryListAPIView.as_view()),
+    path('post/category/create/', api_views.CategoryCreateAPIView.as_view()),
     path('post/category/posts/<category_slug>/', api_views.PostCategoryListAPIView.as_view()),
-    path('post/lists/', api_views.PostListAPIView.as_view()),
+    path('post/list/', api_views.PostListAPIView.as_view()),
+    path('post/trend-posts-list/', api_views.TrendPostListAPIView.as_view()),
     path('post/detail/<slug>/', api_views.PostDetailAPIView.as_view()),
     path('post/like-post/', api_views.PostLikeAPIView.as_view()),
     path('post/comment-post/', api_views.PostCommentAPIView.as_view()),
     path('post/bookmark-post/', api_views.BookmarkPostAPIView.as_view()),
     
     path('author/dashboard/stats/<user_id>/', api_views.DashboardStatsView.as_view()),
+    path('author/dashboard/post-list/<user_id>/', api_views.DashboardPostLists.as_view()),
     path('author/dashboard/comment-list/<user_id>/', api_views.DashboardCommentLists.as_view()),
     path('author/dashboard/notification-list/<user_id>/', api_views.DashboardNotificationsList.as_view()),
     path('author/dashboard/notification-mark-seen/', api_views.DashboardMarkNotificationAsSeen.as_view()),

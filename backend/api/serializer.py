@@ -69,6 +69,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         return response
 
 
+class CategoryCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = api_models.Category
+        fields = ["title","image"]
+
 class CategorySerializer(serializers.ModelSerializer):
 
     def get_post_count(self, category):
@@ -98,7 +103,7 @@ class PostSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many = True)
     class Meta:
         model = api_models.Post
-        fields = "__all__"
+        exclude = ["user"]
 
     def __init__(self, *args, **kwargs):
         super(PostSerializer, self).__init__(*args, **kwargs)
